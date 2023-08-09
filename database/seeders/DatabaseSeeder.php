@@ -17,6 +17,6 @@ class DatabaseSeeder extends Seeder
     {
         User::factory(10)->create();
 
-        $this->call(Address\AddressSeeder::class);
+        // $this->call(Address\AddressSeeder::class);
     }
 }

@@ -3,46 +3,30 @@
 namespace App\Http\Controllers\User\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Helpers\JWT;
+use App\Http\Requests\LoginPostRequest;
+use App\Http\Resources\LoginResource;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
-    public function login(Request $request)
+    public function login(LoginPostRequest $req)
     {
-        $credentials = $request->only(['email', 'password']);
+        $validated = $req->validated();
 
-        $validated = validator($credentials, [
-            'email' => 'required|email',
-            'password' => 'required'
-        ])->validate();
+        $user = User::where('email', $validated['email'])->first();
 
-        if (!auth()->attempt($validated)) {
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
             return response()->json([
-                'message' => 'Invalid credentials'
-            ], 401);
+                'status' => 401,
+                'success' => false,
+                'message' => 'Inccorect email or password'
+            ]);
         }
 
-        $user = User::where('email', $validated['email'])->firstOrFail();
+        $token = JWT::encode($user->id);
 
-        $payload = [
-            'iss' => config('app.name'),
-            'sub' => $user->id,
-            'iat' => time(),
-            'exp' => time() + 60 * 60 * 24 * 7
-        ];
-
-        $key = config('app.jwt_secret_key');
-
-        $token = JWT::encode($payload, $key, 'HS256');
-
-        return response()->json([
-            'status' => 200,
-            'success' => true,
-            'message' => 'Login success',
-            'token' => $token
-        ]);
+        return new LoginResource($token);
     }
 }
