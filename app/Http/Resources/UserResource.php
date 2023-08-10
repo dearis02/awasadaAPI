@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use App\Http\Resources\AddressResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
@@ -20,7 +21,7 @@ class UserResource extends JsonResource
             'email'      => $this->email,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-
+            'addresses'  => AddressResource::collection($this->addresses),
         ];
     }
 }

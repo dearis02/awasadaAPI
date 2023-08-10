@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,7 +30,5 @@ class AppServiceProvider extends ServiceProvider
         $this->app->resolving(LengthAwarePaginator::class, function ($paginator) {
             return $paginator->withQueryString();
         });
-
-        JsonResource::withoutWrapping();
     }
 }

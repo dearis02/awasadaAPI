@@ -10,6 +10,9 @@ Route::post('/register', [RegisterController::class, 'register']);
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/user', [UserController::class, 'index']);
+    Route::get('/user/{id}', [UserController::class, 'detail']);
+    Route::patch('/user', [UserController::class, 'update']);
+    Route::delete('/user', [UserController::class, 'delete']);
 });
 
 
