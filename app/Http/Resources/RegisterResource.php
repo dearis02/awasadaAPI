@@ -15,7 +15,7 @@ class RegisterResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'status'  => 200,
+            'status'  => 201,
             'success' => true,
             'message' => 'Register success',
             'token'   => $this->resource,

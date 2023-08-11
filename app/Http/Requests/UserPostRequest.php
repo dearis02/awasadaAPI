@@ -22,7 +22,6 @@ class UserPostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => 'required',
             'first_name' => 'required|string|max:30',
             'last_name' => 'required|string|max:30',
             'email' => 'required|email|unique:users,email',

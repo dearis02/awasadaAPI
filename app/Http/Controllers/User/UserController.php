@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Helpers\API;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -19,9 +20,9 @@ class UserController extends Controller
             ->setStatusCode(200);
     }
 
-    public function detail($id)
+    public function detail(User $user)
     {
-        if (!$id) {
+        if (!$user->exists) {
             return response()->json([
                 'status' => 422,
                 'success' => false,
@@ -29,23 +30,21 @@ class UserController extends Controller
             ], 422);
         }
 
-        $user = User::whereHas('addresses')->find($id);
+        $user->whereHas('addresses');
 
         return (new UserResource($user))
             ->response()
             ->setStatusCode(200);
     }
 
-    public function update(UserPostRequest $req)
+    public function update(UserPostRequest $req, User $user)
     {
         DB::beginTransaction();
 
         try {
             $validated = $req->validated();
 
-            $id = $validated['id'];
-
-            User::where('id', $id)->update([
+            $user->update([
                 'first_name' => $validated['first_name'],
                 'last_name' => $validated['last_name'],
                 'email' => $validated['email'],
@@ -53,51 +52,28 @@ class UserController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'status' => 200,
-                'success' => true,
-                'message' => "Update user success",
-                'data' => []
-            ], 200);
+            return API::successResponse(200, "Update user success");
         } catch (\Throwable $th) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 500,
-                'success' => false,
-                'message' => "Update user failed"
-            ], 500);
+            return API::failResponse(500, "Update user failed");
         }
     }
 
-    public function delete(Request $req)
+    public function delete(User $user)
     {
         DB::beginTransaction();
 
         try {
-            $validated = $req->validate([
-                'id' => 'required'
-            ]);
-
-            $id = $validated['id'];
-
-            User::where('id', $id)->delete();
+            $user->delete();
 
             DB::commit();
 
-            return response()->json([
-                'status' => 200,
-                'success' => true,
-                'message' => "Delete user success",
-            ], 200);
+            return API::successResponse(200, "Delete user success");
         } catch (\Throwable $th) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 500,
-                'success' => false,
-                'message' => "Delete user failed"
-            ], 500);
+            return API::failResponse(500, "Delete user failed");
         }
     }
 }
